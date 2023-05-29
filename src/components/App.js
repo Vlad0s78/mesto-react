@@ -17,6 +17,7 @@ export default function App() {
   const [selectedCard, setSelectedCard] = useState(null);
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     api
@@ -29,13 +30,6 @@ export default function App() {
     api
       .getInitialCards()
       .then((cards) => setCards(cards))
-      .catch((err) => console.log(`ОшибОЧКА ДРУГАЛЁЧЕК: ${err}`));
-  }, []);
-
-  useEffect(() => {
-    api
-      .getUserInfo()
-      .then((userInfo) => setCurrentUser(userInfo))
       .catch((err) => console.log(`ОшибОЧКА ДРУГАЛЁЧЕК: ${err}`));
   }, []);
 
@@ -75,33 +69,39 @@ export default function App() {
   }
 
   function handleUpdateUser(data) {
+    setIsLoading(true);
     api
       .updateUserInfo(data)
       .then((userInfo) => {
         setCurrentUser(userInfo);
         closeAllPopups();
       })
-      .catch((err) => console.log(`ОшибОЧКА ДРУГАЛЁЧЕК: ${err}`));
+      .catch((err) => console.log(`ОшибОЧКА ДРУГАЛЁЧЕК: ${err}`))
+      .finally(() => { setIsLoading(false)});
   }
 
   function handleUpdateAvatar(data) {
+    setIsLoading(true);
     api
       .updateAvatar(data)
       .then((item) => {
         setCurrentUser(item);
         closeAllPopups();
       })
-      .catch((err) => console.log(`ОшибОЧКА ДРУГАЛЁЧЕК: ${err}`));
+      .catch((err) => console.log(`ОшибОЧКА ДРУГАЛЁЧЕК: ${err}`))
+      .finally(() => { setIsLoading(false)});
   }
 
   function handleAddPlaceSubmit(data) {
+    setIsLoading(true);
     api
       .addNewCard(data)
       .then((newCard) => {
         setCards([newCard, ...cards]);
         closeAllPopups();
       })
-      .catch((err) => console.log(`ОшибОЧКА ДРУГАЛЁЧЕК: ${err}`));
+      .catch((err) => console.log(`ОшибОЧКА ДРУГАЛЁЧЕК: ${err}`))
+      .finally(() => { setIsLoading(false)});
   }
 
   function closeAllPopups() {
@@ -126,9 +126,9 @@ export default function App() {
             onCardDelete={handleCardDelete}
           />
           <Footer />
-          <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
-          <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
-          <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit} />
+          <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} isLoading={isLoading} />
+          <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} isLoading={isLoading} />
+          <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit} isLoading={isLoading} />
 
           <PopupWithForm name={"delete-card"} title={"Вы уверены?"} onClose={closeAllPopups} />
           <ImagePopup card={selectedCard} onClose={closeAllPopups} />
