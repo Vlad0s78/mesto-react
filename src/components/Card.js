@@ -1,6 +1,22 @@
-export default function Card({ card, onCardClick }) {
+import { useContext } from "react";
+import { CurrentUserContext } from "../contexts/CurrentUserContext.js";
+
+export default function Card({ card, onCardClick, onCardLike, onCardDelete }) {
+  const currentUser = useContext(CurrentUserContext);
+  const isOwn = card.owner._id === currentUser._id;
+  const isLiked = card.likes.some((i) => i._id === currentUser._id);
+  const cardLikeButtonClassName = `grid-elements__button-like ${isLiked && "grid-elements__button-like_active"}`;
+
   function handleClick() {
     onCardClick(card);
+  }
+
+  function handleLikeClick() {
+    onCardLike(card);
+  }
+
+  function handleDeleteClick() {
+    onCardDelete(card);
   }
 
   return (
@@ -9,11 +25,11 @@ export default function Card({ card, onCardClick }) {
       <div className="grid-elements__info">
         <h2 className="grid-elements__title">{card.name}</h2>
         <div className="grid-elements__like">
-          <button className="grid-elements__button-like" type="button"></button>
+          <button className={cardLikeButtonClassName} type="button" onClick={handleLikeClick}></button>
           <span className="grid-elements__like-counter">{card.likes.length}</span>
         </div>
       </div>
-      <button className="grid-elements__button-remove" type="button"></button>
+      {isOwn && <button className="grid-elements__button-remove" type="button" onClick={handleDeleteClick}></button>}
     </article>
   );
 }
